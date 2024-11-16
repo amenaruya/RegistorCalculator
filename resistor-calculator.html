@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- 前半部分は同じなので省略 -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抵抗カラーコード計算機</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .resistor {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .band-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .band {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+        }
+        .result {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .color-preview {
+            width: 30px;
+            height: 80px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .resistor-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .resistor-body {
+            width: 300px;
+            height: 80px;
+            background-color: #f4d03f;
+            border-radius: 40px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .resistor-lead {
+            width: 60px;
+            height: 4px;
+            background-color: #silver;
+            position: absolute;
+        }
+        .resistor-lead.left {
+            left: -60px;
+        }
+        .resistor-lead.right {
+            right: -60px;
+        }
+        .band-stripe {
+            width: 12px;
+            height: 100%;
+            position: absolute;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>抵抗カラーコード計算機</h1>
+    <div class="resistor">
+        <div class="band-selector">
+            <!-- セレクタ部分は同じ -->
+            <div class="band">
+                <label>第1バンド</label>
+                <select id="band1">
+                    <option value="black" style="background-color: black; color: white;">黒 (0)</option>
+                    <option value="brown" style="background-color: brown; color: white;">茶 (1)</option>
+                    <option value="red" style="background-color: red;">赤 (2)</option>
+                    <option value="orange" style="background-color: orange;">橙 (3)</option>
+                    <option value="yellow" style="background-color: yellow;">黄 (4)</option>
+                    <option value="green" style="background-color: green; color: white;">緑 (5)</option>
+                    <option value="blue" style="background-color: blue; color: white;">青 (6)</option>
+                    <option value="violet" style="background-color: violet;">紫 (7)</option>
+                    <option value="gray" style="background-color: gray; color: white;">灰 (8)</option>
+                    <option value="white" style="background-color: white;">白 (9)</option>
+                </select>
+                <div class="color-preview" id="preview1"></div>
+            </div>
+            <div class="band">
+                <label>第2バンド</label>
+                <select id="band2">
+                    <option value="black" style="background-color: black; color: white;">黒 (0)</option>
+                    <option value="brown" style="background-color: brown; color: white;">茶 (1)</option>
+                    <option value="red" style="background-color: red;">赤 (2)</option>
+                    <option value="orange" style="background-color: orange;">橙 (3)</option>
+                    <option value="yellow" style="background-color: yellow;">黄 (4)</option>
+                    <option value="green" style="background-color: green; color: white;">緑 (5)</option>
+                    <option value="blue" style="background-color: blue; color: white;">青 (6)</option>
+                    <option value="violet" style="background-color: violet;">紫 (7)</option>
+                    <option value="gray" style="background-color: gray; color: white;">灰 (8)</option>
+                    <option value="white" style="background-color: white;">白 (9)</option>
+                </select>
+                <div class="color-preview" id="preview2"></div>
+            </div>
+            <div class="band">
+                <label>乗数バンド</label>
+                <select id="multiplier">
+                    <option value="black" style="background-color: black; color: white;">黒 (×1)</option>
+                    <option value="brown" style="background-color: brown; color: white;">茶 (×10)</option>
+                    <option value="red" style="background-color: red;">赤 (×100)</option>
+                    <option value="orange" style="background-color: orange;">橙 (×1k)</option>
+                    <option value="yellow" style="background-color: yellow;">黄 (×10k)</option>
+                    <option value="green" style="background-color: green; color: white;">緑 (×100k)</option>
+                    <option value="blue" style="background-color: blue; color: white;">青 (×1M)</option>
+                    <option value="violet" style="background-color: violet;">紫 (×10M)</option>
+                    <option value="gold" style="background-color: gold;">金 (×0.1)</option>
+                    <option value="silver" style="background-color: silver;">銀 (×0.01)</option>
+                </select>
+                <div class="color-preview" id="preview3"></div>
+            </div>
+            <div class="band">
+                <label>許容差バンド</label>
+                <select id="tolerance">
+                    <option value="brown" style="background-color: brown; color: white;">茶 (±1%)</option>
+                    <option value="red" style="background-color: red;">赤 (±2%)</option>
+                    <option value="green" style="background-color: green; color: white;">緑 (±0.5%)</option>
+                    <option value="blue" style="background-color: blue; color: white;">青 (±0.25%)</option>
+                    <option value="violet" style="background-color: violet;">紫 (±0.1%)</option>
+                    <option value="gold" style="background-color: gold;">金 (±5%)</option>
+                    <option value="silver" style="background-color: silver;">銀 (±10%)</option>
+                </select>
+                <div class="color-preview" id="preview4"></div>
+            </div>
+        </div>
+        <div class="resistor-visual">
+            <div class="resistor-body" id="resistor">
+                <div class="resistor-lead left"></div>
+                <div class="resistor-lead right"></div>
+            </div>
+        </div>
+    </div>
+    <div class="result" id="result">
+        <h2>計算結果</h2>
+        <p>抵抗値: <span id="resistance">-- Ω</span></p>
+        <p>許容差: <span id="toleranceValue">±--%</span></p>
+    </div>
+
+    <script>
+        const colorValues = {
+            black: 0, brown: 1, red: 2, orange: 3, yellow: 4,
+            green: 5, blue: 6, violet: 7, gray: 8, white: 9
+        };
+
+        const multiplierValues = {
+            black: 1, brown: 10, red: 100, orange: 1000,
+            yellow: 10000, green: 100000, blue: 1000000,
+            violet: 10000000, gold: 0.1, silver: 0.01
+        };
+
+        const toleranceValues = {
+            brown: 1, red: 2, green: 0.5, blue: 0.25,
+            violet: 0.1, gold: 5, silver: 10
+        };
+
+        function updateResistance() {
+            const band1Value = colorValues[document.getElementById('band1').value];
+            const band2Value = colorValues[document.getElementById('band2').value];
+            const multiplier = multiplierValues[document.getElementById('multiplier').value];
+            const tolerance = toleranceValues[document.getElementById('tolerance').value];
+
+            const resistance = (band1Value * 10 + band2Value) * multiplier;
+            
+            let resistanceText = '';
+            if (resistance >= 1000000) {
+                resistanceText = `${(resistance / 1000000).toFixed(2)} MΩ`;
+            } else if (resistance >= 1000) {
+                resistanceText = `${(resistance / 1000).toFixed(2)} kΩ`;
+            } else {
+                resistanceText = `${resistance.toFixed(2)} Ω`;
+            }
+
+            document.getElementById('resistance').textContent = resistanceText;
+            document.getElementById('toleranceValue').textContent = `±${tolerance}%`;
+
+            document.getElementById('preview1').style.backgroundColor = document.getElementById('band1').value;
+            document.getElementById('preview2').style.backgroundColor = document.getElementById('band2').value;
+            document.getElementById('preview3').style.backgroundColor = document.getElementById('multiplier').value;
+            document.getElementById('preview4').style.backgroundColor = document.getElementById('tolerance').value;
+
+            updateResistorVisual();
+        }
+
+        function updateResistorVisual() {
+            const resistor = document.getElementById('resistor');
+            // リード線以外の要素をクリア
+            const leads = resistor.querySelectorAll('.resistor-lead');
+            resistor.innerHTML = '';
+            leads.forEach(lead => resistor.appendChild(lead));
+
+            const bands = [
+                document.getElementById('band1').value,
+                document.getElementById('band2').value,
+                document.getElementById('multiplier').value,
+                document.getElementById('tolerance').value
+            ];
+
+            const totalWidth = 300; // 抵抗本体の幅
+            const centerPosition = totalWidth / 2;
+            const bandSpacing = 25; // バンド間の間隔
+
+            bands.forEach((color, index) => {
+                const band = document.createElement('div');
+                band.className = 'band-stripe';
+                band.style.backgroundColor = color;
+                // バンドの位置を中央を基準に配置
+                const offset = (index - 1.5) * bandSpacing;
+                band.style.left = `${centerPosition + offset - 6}px`; // 6はバンドの幅の半分
+                resistor.appendChild(band);
+            });
+        }
+
+        // イベントリスナーの設定
+        document.getElementById('band1').addEventListener('change', updateResistance);
+        document.getElementById('band2').addEventListener('change', updateResistance);
+        document.getElementById('multiplier').addEventListener('change', updateResistance);
+        document.getElementById('tolerance').addEventListener('change', updateResistance);
+
+        // 初期表示
+        updateResistance();
+    </script>
+</body>
+</html>
